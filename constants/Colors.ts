@@ -3,6 +3,8 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
+import { red } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
+
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
@@ -22,5 +24,9 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
-  },
+  }
 };
+
+export const color = {
+  red: "#FF0000"
+}
