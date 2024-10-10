@@ -14,6 +14,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "components/AppLayout.jsx",
-    "components/Timer.jsx"
+    "components/Timer.jsx",
+    "app/(tabs)/history.jsx"
   ]
 }

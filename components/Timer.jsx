@@ -1,8 +1,11 @@
-import { StyleSheet, View, Button, TouchableOpacity, Text, useColorScheme } from 'react-native';
+import { StyleSheet, View, Button, TouchableOpacity, useColorScheme } from 'react-native';
 import { ThemedText } from "./ThemedText";
 import { useEffect, useState } from 'react';
 import { color } from '@/constants/Colors';
 import * as Notifications from 'expo-notifications';
+import { storeSession } from '@/database/async_storage';
+import { secondsToHms } from '@/utils/TimeHelper';
+
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -16,8 +19,8 @@ export default function Timer() {
   const theme = useColorScheme() === 'dark' ? '#fff' : '#000';
 
   const types = {
-    'SHORT': { label: 'short (20/5)', value: { workTime: 20 * 60, breakTime: 5 * 60 } },
-    'LONG': { label: 'long (45/15)', value: { workTime: 45 * 60, breakTime: 15 * 60 } },
+    'SHORT': { label: 'Short (20/5)', value: { workTime: 3, breakTime: 2 } },
+    'LONG': { label: 'Long (45/15)', value: { workTime: 5, breakTime: 4 } },
   };
 
   const [selectedType, setSelectedType] = useState('LONG');
@@ -29,6 +32,7 @@ export default function Timer() {
   const [time, setTime] = useState(workTime); // temps affiché
   const [isRunning, setIsRunning] = useState(false); // état du timer en cours
   const [intervalId, setIntervalId] = useState(null);
+  const [sessionCount, setSessionCount] = useState(1); // Nombre de sessions effectuées
 
   useEffect(() => {
     if (time === 0) {
@@ -61,6 +65,14 @@ export default function Timer() {
     setTime(workTime);
   };
 
+  const stopAndSave = () => {
+    setIsRunning(false);
+    //Sauvegarder la session
+    const totalWorkingTime = secondsToHms(workTime * (sessionCount - 1) + (workTime - time));
+    storeSession({ date: new Date(), workTime: totalWorkingTime, sessionCount: sessionCount });
+    stopTimer();
+  }
+
   const handleTimerEnd = () => {
     clearInterval(intervalId);
     sendNotification();
@@ -72,6 +84,7 @@ export default function Timer() {
     } else {
       setMode('work');
       setTime(workTime);
+      setSessionCount(sessionCount + 1);
     }
     startTimer();
   };
@@ -108,7 +121,7 @@ export default function Timer() {
       />
       <Button
         color={color.red}
-        onPress={stopTimer}
+        onPress={stopAndSave}
         title="Stop"
       />
       <View style={styles.container}>
@@ -143,7 +156,8 @@ const styles = StyleSheet.create({
   },
   timer: {
     fontSize: 80,
-    lineHeight: 82
+    lineHeight: 82,
+    alignSelf: 'center',
   },
   mode: {
     alignSelf: 'flex-start'
